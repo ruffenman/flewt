@@ -17,8 +17,9 @@ package flewt.core
 			if (_tail)
 			{
 				//add new node after tail
-				_tail.next = new FltListNode(object);
-				_tail.next.prev = _tail;
+				_tail._next = new FltListNode(object);
+				_tail._next._prev = _tail;
+				_tail = _tail._next;
 			}
 			//else there is no tail and the list is empty
 			else
@@ -26,6 +27,8 @@ package flewt.core
 				//create first node
 				_head = _tail = new FltListNode(object);
 			}
+			
+			_tail._parent = this;
 			
 			//increase length by one
 			_length++;
@@ -48,6 +51,8 @@ package flewt.core
 				_head = _tail = new FltListNode(object);
 			}
 			
+			_head._parent = this;
+			
 			//increase length by one
 			_length++;
 		}
@@ -59,20 +64,16 @@ package flewt.core
 			//if there is a tail (at least one object)
 			if (_tail)
 			{
-				//remove node from list
+				//get object to return
 				object = _tail._object;
-				_tail = _tail._prev;
-				_tail._next._object = null;
-				_tail._next._prev = null;
-				_tail._next = null;
+				
+				//remove node from list
+				removeNode(_tail);
 			}
 			else
 			{
 				throw new RangeError("Tried to pop an item from an empty list");
 			}
-			
-			//decrement list length
-			_length--;
 			
 			return object;
 		}
@@ -84,27 +85,79 @@ package flewt.core
 			//if there is a head (at least one object)
 			if (_head)
 			{
-				//remove node from list
+				//store object to return
 				object = _head._object;
-				_head = _head._next;
-				_head._prev._object = null;
-				_tail._prev._next = null;
-				_tail._prev = null;
+				
+				//remove node from list
+				removeNode(_head);
 			}
 			else
 			{
 				throw new RangeError("Tried to pop an item from an empty list");
 			}
 			
-			//decrement list length
-			_length--;
-			
 			return object;
-		}
+		}		
 		
 		public function removeNode(node:FltListNode):void
 		{
+			//if this node is a member of this list
+			if (node._parent == this)
+			{
+				var prev:FltListNode = node._prev;
+				var next:FltListNode = node._next;
+				
+				//if there is a previous node
+				if (prev)
+				{
+					prev._next = next;
+				}
+				//else removing head node
+				else
+				{
+					_head = next;
+				}
+				
+				//if there is a next node
+				if (next)
+				{
+					next._prev = prev;
+				}
+				//else removing tail node
+				else
+				{
+					_tail = prev;
+				}
+				
+				node._next = null;
+				node._prev = null;
+				node._object = null;
+				node._parent = null;
+				
+				//decrement list count
+				_length--;
+			}
+			else
+			{
+				throw new Error("Tried to remove a node from a list it didn't belong to");
+			}
+		}
+		
+		public function find(object:*):FltListNode
+		{
+			var iter:FltListNode = _head;
 			
+			while (iter)
+			{
+				if (iter.object == object)
+				{
+					return iter;
+				}
+				
+				iter = iter.next;
+			}
+			
+			return null;
 		}
 		
 		public function get back():*

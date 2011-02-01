@@ -29,6 +29,7 @@ package flewt.core
 		internal var _prev:FltListNode;
 		internal var _next:FltListNode;		
 		internal var _object:*;
+		internal var _parent:FltList;
 	}
 
 }
